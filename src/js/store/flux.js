@@ -1,6 +1,9 @@
+import * as md5 from "blueimp-md5"; 
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
+			heroes: [],
 			demo: [
 				{
 					title: "FIRST",
@@ -11,6 +14,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 					title: "SECOND",
 					background: "white",
 					initial: "white"
+				},
+				{
+					title: "Diego",
+					background: "red",
+					initial: "white"
+				},
+				{
+					title: "Steffano",
+					background: "blue",
+					initial: "black"
 				}
 			]
 		},
@@ -19,10 +32,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			loadHeroes: async () => {
+
+				const ts = new Date()
+
+				try{
+					let resp = await fetch(`https://gateway.marvel.com/v1/public/characters?limit=100&ts=${ts}&apikey=${process.env.PUBLIC_KEY}&hash=${md5(ts+process.env.PRIVATE_KEY+process.env.PUBLIC_KEY)}`)
+					let superheroes = await resp.json()
+
+					setStore({ heroes: superheroes.data.results})
+
+				}catch(err){
+					console.log(err)
+				}
+
 			},
 			changeColor: (index, color) => {
 				//get the store
