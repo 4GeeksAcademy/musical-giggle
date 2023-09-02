@@ -1,9 +1,10 @@
-import * as md5 from "blueimp-md5"; 
+import * as md5 from "blueimp-md5";
 
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			heroes: [],
+			favorites: [],
 			demo: [
 				{
 					title: "FIRST",
@@ -36,13 +37,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				const ts = new Date()
 
-				try{
-					let resp = await fetch(`https://gateway.marvel.com/v1/public/characters?limit=100&ts=${ts}&apikey=${process.env.PUBLIC_KEY}&hash=${md5(ts+process.env.PRIVATE_KEY+process.env.PUBLIC_KEY)}`)
+				try {
+					let resp = await fetch(`https://gateway.marvel.com/v1/public/characters?limit=100&ts=${ts}&apikey=${process.env.PUBLIC_KEY}&hash=${md5(ts + process.env.PRIVATE_KEY + process.env.PUBLIC_KEY)}`)
 					let superheroes = await resp.json()
 
-					setStore({ heroes: superheroes.data.results})
+					setStore({ heroes: superheroes.data.results })
 
-				}catch(err){
+				} catch (err) {
 					console.log(err)
 				}
 
@@ -60,6 +61,16 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
+			},
+			addFavorite: (hero) => {
+				const store = getStore()
+				if (!store.favorites.includes(hero.name)) {
+					setStore({ favorites: [hero.name, ...store.favorites] })
+				}
+			},
+			removeFavorite: (hero) => {
+				const store = getStore()
+				setStore({ favorites: store.favorites.filter(item => item != hero) })
 			}
 		}
 	};
